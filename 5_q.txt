@@ -1,0 +1,5 @@
+Is your battery/mobile older than 3 years?
+Have you tried re-calibrating it?
+Is the battery swollen?
+Is your GPS, or location services, set to always on?
+1 0 1 1

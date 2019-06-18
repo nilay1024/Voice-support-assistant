@@ -1,0 +1,4 @@
+Low power mode underclocks you CPU to increase battery backup. Toggling it off should result in better performance. To do that go to settings, then batter, and toggle off power saving mode.
+If you find apps that you don't require to run in background, click on them, and uncheck start automatically. Click on stop app. This should free up some RAM and give you idea about apps hogging RAM.
+Remove the apps that you don't require in the background by toggling  multitasking view and swiping up.
+We would like you to email the crash report to us and we will get back to you.

@@ -1,0 +1,4 @@
+Your battery has exceeded its average lifecycle. It might be time to change it.
+Try recalibrating your battery. Charge it to full 100% and then let it discharge to 0% and email us the diagnostic logs.
+You need to replace your batter as soon as possible. A swollen Li-iON battery can be extremely dangerous and prone to catching fire.
+Try turning off your location services (turn them on when you require it)

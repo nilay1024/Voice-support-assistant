@@ -1,0 +1,5 @@
+Is the power saving mode/ low power mode activated?
+Go to settings, memory management, running apps. Is your RAM consumption more than 75%?
+do you have more than 8 apps running in the background?
+Is there any app that crashes when this happens? 
+1 1 1 1
