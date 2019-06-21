@@ -2,6 +2,7 @@ import nltk
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from autocorrect import spell
 import azure.cognitiveservices.speech as speechsdk
 
 
@@ -17,18 +18,34 @@ import azure.cognitiveservices.speech as speechsdk
 def speech_to_text_short():
 
 	# speech_recognizer parameters defined in main
+	print("Say something...")
 	result = speech_recognizer.recognize_once()
 
 	# Checks result.
 	if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-	    print("Recognized: {}".format(result.text))
+	    return "Recognized: {}".format(result.text), 1
 	elif result.reason == speechsdk.ResultReason.NoMatch:
-	    print("No speech could be recognized: {}".format(result.no_match_details))
+	    return "No speech could be recognized: {}".format(result.no_match_details), 0
 	elif result.reason == speechsdk.ResultReason.Canceled:
 	    cancellation_details = result.cancellation_details
-	    print("Speech Recognition canceled: {}".format(cancellation_details.reason))
+	    return "Speech Recognition canceled: {}".format(cancellation_details.reason), 0
 	    if cancellation_details.reason == speechsdk.CancellationReason.Error:
-	        print("Error details: {}".format(cancellation_details.error_details))
+	        return "Error details: {}".format(cancellation_details.error_details), 0
+
+
+def get_voice_input():
+	exit = 0
+	while exit != 1:
+		detected_voice = speech_to_text_short()
+		if detected_voice[1] == 1:
+			print(detected_voice[0])
+			x = input("Is the detected input correct? (Yes/No)")
+			if x in affirmatives:
+				return detected_voice[0]
+		else:
+			print(detected_voice[0])
+			print("Press enter to retry voice input")
+			x = input()
 
 
 def get_overall_score(sent1, sent2):
@@ -88,6 +105,16 @@ def remove_stop_words(sent):
 # word2 = input()
 # similarity_score = get_similarity_score(word1, word2)
 # print(similarity_score)
+
+
+def spell_check(sentence):
+	sentence2 = ""
+	sentence = sentence.split()
+	for i in sentence:
+		sentence2 = sentence2 + spell(i) + ' '
+	sentence2 = sentence2[:-1]
+	print("Sentence after spell check: ", sentence2)
+	return sentence2
 
 
 def select_category_old(queries, sentence1):
@@ -175,9 +202,15 @@ affirmatives = ['YES', 'yes', 'Yes']
 # query = select_category(queries)
 
 #SELECTING MULTIPLE CATEOGARIES
-# input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
 
-sentence2 = input("What can I help you with?")
+sentence2_o = ""
+if input_type == '1':
+	sentence2_o = input("What can I help you with?")
+else:
+	sentence2_o = get_voice_input()
+
+sentence2 = spell_check(sentence2_o)
 cateogaries_indices = list()
 sentences = sentence2.replace(' and', '.').split('.')
 scores = list()
