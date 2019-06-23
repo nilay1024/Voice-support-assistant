@@ -1,0 +1,4 @@
+bill payment status
+bill paid but service not resumed
+disturbance in line
+broadband no internet connection
