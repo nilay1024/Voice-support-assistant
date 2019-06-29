@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from autocorrect import spell
 import azure.cognitiveservices.speech as speechsdk
+import re
 
 
 # fpointer = open("queries.txt", 'r')
@@ -63,6 +64,9 @@ def get_overall_score(sent1, sent2):
 			except:
 				counter = counter + 1
 
+	# ALSO LOOK UP 'fuzz.ratio' (FUZZY LOGIC/FUZZYWUZZY) TO IMPROVE ACCURACY
+	# https://towardsdatascience.com/natural-language-processing-for-fuzzy-string-matching-with-python-6632b7824c49
+
 	if counter == 0:
 		counter += 1
 	return score/counter
@@ -105,6 +109,23 @@ def remove_stop_words(sent):
 # word2 = input()
 # similarity_score = get_similarity_score(word1, word2)
 # print(similarity_score)
+
+
+def decontracted(phrase):
+    # specific
+    phrase = re.sub(r"won\'t", "will not", phrase)
+    phrase = re.sub(r"can\'t", "can not", phrase)
+
+    # general
+    phrase = re.sub(r"n\'t", " not", phrase)
+    phrase = re.sub(r"\'re", " are", phrase)
+    phrase = re.sub(r"\'s", " is", phrase)
+    phrase = re.sub(r"\'d", " would", phrase)
+    phrase = re.sub(r"\'ll", " will", phrase)
+    phrase = re.sub(r"\'t", " not", phrase)
+    phrase = re.sub(r"\'ve", " have", phrase)
+    phrase = re.sub(r"\'m", " am", phrase)
+    return phrase
 
 
 def spell_check(sentence):

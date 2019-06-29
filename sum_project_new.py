@@ -20,6 +20,145 @@ import random
 # print()
 # fpointer.close()
 
+
+
+
+def execute_workflow(workflow_number):
+	fin = open("workflow_" + str(workflow_number) + '.txt', 'r')
+	data = fin.read().split('\n')
+	fin.close()
+	d = dict()
+	for i in range(len(data)):
+		query = data[i].split()
+		d[query[0]] = query[1:]
+	exit = 0
+	current_flow = '0'
+	result = check_database_new()
+	next_flow = ''
+	time = 0
+	while exit == 0:
+		print("\ncurrent_flow: ", current_flow)
+
+		if d[current_flow][0] == 'd':
+			# CHECK DATABASE
+			# NEED TO MODIFY THIS FOR BROADER CASES
+			print("Checking database")
+			# result = check_database_new()
+			if result.count() == 0:
+				print("Record not found\n")
+			# current_flow = current_flow + '0'
+			next_flow = '0'
+
+		elif d[current_flow][0] == 'a':
+			if d[current_flow][1] == 'check_match':
+				if result.count() >= 1:
+					print("Record found")
+					# current_flow = current_flow + '1'
+					next_flow = '1'
+				else:
+					print("Record not found\n")
+					# current_flow = current_flow + '2'
+					next_flow = '2'
+			else:
+				print("Checking " + d[current_flow][1])
+				ans = result[0][d[current_flow][1]].lower()
+				print("Current " + d[current_flow][1] + "is " + ans)
+				counter = 1
+				try:
+					exit1 = 0
+					while exit1 == 0:
+						print(d[current_flow + str(counter)][1], ans)
+						if d[current_flow + str(counter)][1] == ans:
+							# current_flow = current_flow + str(counter)
+							next_flow = str(counter)
+							exit1 = 1
+							break
+						else:
+							counter += 1
+				except Exception as e:
+					# FIND A DIFFERENT WAY TO DEAL WITH THIS (MAYBE RETRY INPUT)
+					raise e
+					print("\nRan out of options\n")
+					exit = 1
+
+
+		elif d[current_flow][0] == 'm':
+			# current_flow = current_flow + '0'
+			next_flow = '0'
+
+		elif d[current_flow][0] == 't':
+			# GET TIME, OR SOMETHING ELSE (MAYBE?)
+			text = ""
+			for j in range(len(d[current_flow])-1):
+				text = text + ' ' + d[current_flow][j+1]
+			time = input(text)
+			next_flow = '0'
+
+		elif d[current_flow][0] == 'q':
+			# ASK A QUESTION 
+			question = ''
+			for j in range(len(d[current_flow])-1):
+				question = question + ' ' + d[current_flow][j+1]
+			ans = input(question).lower()
+			# print(ans)
+			counter = 1
+			try:
+				exit1 = 0
+				while exit1 == 0:
+					# print(d[current_flow + str(counter)][1], ans)
+					if d[current_flow + str(counter)][1] == ans:
+						# current_flow = current_flow + str(counter)
+						next_flow =  str(counter)
+						exit1 = 1
+						break
+					else:
+						counter += 1
+
+			except Exception as e:
+				raise e
+				print("\nRan out of options\n")
+				exit = 1
+
+
+		elif d[current_flow][0] == 'e':
+			exit = 1
+
+		if d[current_flow][-1] == 'p':
+			to_be_printed = ""
+			# print("Printing\n")
+			for j in range(len(d[current_flow])-2):
+				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+			print(to_be_printed)
+
+		elif d[current_flow][-1] == 'pu':
+			to_be_printed = ""
+			# print("Printing\n")
+			for j in range(len(d[current_flow])-2):
+				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+			print(to_be_printed)
+			save_record(result, time)
+
+		current_flow = current_flow + next_flow
+
+
+
+	print("Workflow execution completed (successfully)\n")
+
+
+
+
+def check_database_new():
+	payment_mode = input("Enter payment mode: ")
+	amount = input("Enter paid amount: ")
+	date = input("Enter date of payment: ")
+	myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+	mydb = myclient["mydatabase"]
+	mycol = mydb["payment_data"]
+	result = mycol.find({'Amount': amount, 'Mode': payment_mode, 'LastPaymentDate': date})
+	return result
+
+
+
 def check_database():
 	payment_mode = input("Enter payment mode: ")
 	amount = input("Enter paid amount: ")
@@ -33,7 +172,7 @@ def check_database():
 
 def bill_payment_status(result):
 	# result = check_database()
-	if result.conunt() >= 1:
+	if result.count() >= 1:
 		print("Entry found ")
 		print("Your bill has been paid and updated in the system.")
 	else:
@@ -99,6 +238,7 @@ def count(result):
 
 def save_record(result, time):
 	fopen = open("complaints.txt", 'a')
+	random_int = random.randint(100, 100000)
 	for i in result[0]:
 		fopen.write(i)
 		fopen.write(": ")
@@ -106,10 +246,11 @@ def save_record(result, time):
 		fopen.write("\n")
 	if time != 0:
 		fopen.write("Time of complaint: " + time + "\n")
+	fopen.write("Reference number: " + str(random_int) + "\n")
 	fopen.write("\nEND OF RECORD\n\n")
 
 	fopen.close()
-	print("Your complaint number is ", random.randint(100, 100000))
+	print("Your complaint number is ", random_int)
 
 
 
@@ -286,123 +427,128 @@ def select_category(queries, sentence1):
 
 
 # __main__  STARTING OF MAIN FUNCTION
+execute_workflow(2)
 
-# CHANGE SPEECH TO TEXT RECOGNITION STUFF HERE
-
-
-warnings.filterwarnings("ignore")
-
-speech_key, service_region = "b3d1f03e79554727a8592485898db611", "westus"
-speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-# Creates a recognizer with the given settings
-speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
+# # CHANGE SPEECH TO TEXT RECOGNITION STUFF HERE
 
 
+# warnings.filterwarnings("ignore")
 
-fpointer = open("queries_bsnl.txt", 'r')
-
-temp = fpointer.read()
-queries = temp.split('\n')
-print("\n\nQueries: ")
-print(queries)
-print()
-fpointer.close()
-
-choice = "no"
-query = ""
-max_index = 0
-affirmatives = ['YES', 'yes', 'Yes']
-
-# #SELECTING SINGLE CATEGORY
-# while (choice != 'YES') or (choice != 'yes') or (choice != 'Yes'):
-# 	sentence1 = input("What can I help you with? ")
-# 	output = select_category(queries, sentence1)
-# 	query = output[0]
-# 	max_index = output[1]
-# 	print("Do you require assistance with '", query "'?")
-# 	choice = input()
+# speech_key, service_region = "b3d1f03e79554727a8592485898db611", "westus"
+# speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+# # Creates a recognizer with the given settings
+# speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
 
 
-# query = select_category(queries)
 
-#SELECTING MULTIPLE CATEOGARIES
-input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+# fpointer = open("queries_bsnl.txt", 'r')
 
-sentence2_o = ""
-if input_type == '1':
-	sentence2_o = input("What can I help you with?")
-else:
-	sentence2_o = get_voice_input()
+# temp = fpointer.read()
+# queries = temp.split('\n')
+# print("\n\nQueries: ")
+# print(queries)
+# print()
+# fpointer.close()
 
-sentence2 = spell_check(sentence2_o)
-cateogaries_indices = list()
-sentences = sentence2.replace(' and', '.').split('.')
-scores = list()
-for i in sentences:
-	output = select_category(queries, i)
-	if (output[1] not in cateogaries_indices) and (output[2] >= 0.125*output[3]):
-		cateogaries_indices.append(output[1])
-	print("Score: ", output[2])
+# choice = "no"
+# query = ""
+# max_index = 0
+# affirmatives = ['YES', 'yes', 'Yes']
 
-print("\n\nIdentified problems are: ")
-for j in cateogaries_indices:
-	print(queries[j])
+# # #SELECTING SINGLE CATEGORY
+# # while (choice != 'YES') or (choice != 'yes') or (choice != 'Yes'):
+# # 	sentence1 = input("What can I help you with? ")
+# # 	output = select_category(queries, sentence1)
+# # 	query = output[0]
+# # 	max_index = output[1]
+# # 	print("Do you require assistance with '", query "'?")
+# # 	choice = input()
 
-if len(cateogaries_indices) == 0:
-	print("No issues found, Exiting\n")
-	exit()
 
-result = check_database()
+# # query = select_category(queries)
 
-for i in cateogaries_indices:
-	if i == 0:
-		bill_payment_status(result)
-	if i == 1:
-		service_not_resumed(result)
+# #SELECTING MULTIPLE CATEOGARIES
+# input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
 
-# # SOLVING THE PROBLEMS IN SEQUENTIAL ORDER 
+# sentence2_o = ""
+# if input_type == '1':
+# 	sentence2_o = input("What can I help you with?")
+# else:
+# 	sentence2_o = get_voice_input()
 
-# print("\nAnswer these questions in order (binary answers preferred): \n")
-# i_counter = 0
+# sentence2 = spell_check(sentence2_o)
+# cateogaries_indices = list()
+# sentences = sentence2.replace(' and', '.').split('.')
+# scores = list()
+# for i in sentences:
+# 	output = select_category(queries, i)
+# 	if (output[1] not in cateogaries_indices) and (output[2] >= 0.125*output[3]):
+# 		cateogaries_indices.append(output[1])
+# 	print("Score: ", output[2])
+
+# print("\n\nIdentified problems are: ")
+# for j in cateogaries_indices:
+# 	print(queries[j])
+
+# if len(cateogaries_indices) == 0:
+# 	print("No issues found, Exiting\n")
+# 	exit()
+
+# result = check_database()
+# if result.count() >= 1:
+# 	print("Record found\n")
+
 # for i in cateogaries_indices:
-# 	print("Solving query/issue: ", queries[i], ": ")
-# 	fpointer_q = open(str(i+1) + '_q.txt')
-# 	questions = fpointer_q.read().split('\n')
-# 	fpointer_q.close()
+# 	if i == 0:
+# 		bill_payment_status(result)
+# 	if i == 1:
+# 		service_not_resumed(result)
+# 	if i == 2:
+# 		disturbance_in_line(result)
 
-# 	fpointer_a = open(str(i+1) + '_a.txt')
-# 	answers = fpointer_a.read().split('\n')
-# 	fpointer_a.close()
+# # # SOLVING THE PROBLEMS IN SEQUENTIAL ORDER 
 
-# 	binary_logic = questions[-1].split()
-# 	while_loop_counter = 0
-# 	solved = "No"
-# 	while while_loop_counter < len(questions)-1:
-# 		print(questions[while_loop_counter])
-# 		input_1 = input().split()
-# 		answered = 0
-# 		if (int(binary_logic[while_loop_counter]) == 1) and (input_1[0] in affirmatives):
-# 			print()
-# 			print(answers[while_loop_counter])
-# 			answered = 1
-# 		elif (int(binary_logic[while_loop_counter]) == 0) and (input_1[0] not in affirmatives):
-# 			print(answers[while_loop_counter])
-# 			answered = 1
-# 		if answered == 1:
-# 			solved = input("Did that solve your issue (Yes/No)").split()
-# 			if solved[0] in affirmatives:
-# 				break
+# # print("\nAnswer these questions in order (binary answers preferred): \n")
+# # i_counter = 0
+# # for i in cateogaries_indices:
+# # 	print("Solving query/issue: ", queries[i], ": ")
+# # 	fpointer_q = open(str(i+1) + '_q.txt')
+# # 	questions = fpointer_q.read().split('\n')
+# # 	fpointer_q.close()
+
+# # 	fpointer_a = open(str(i+1) + '_a.txt')
+# # 	answers = fpointer_a.read().split('\n')
+# # 	fpointer_a.close()
+
+# # 	binary_logic = questions[-1].split()
+# # 	while_loop_counter = 0
+# # 	solved = "No"
+# # 	while while_loop_counter < len(questions)-1:
+# # 		print(questions[while_loop_counter])
+# # 		input_1 = input().split()
+# # 		answered = 0
+# # 		if (int(binary_logic[while_loop_counter]) == 1) and (input_1[0] in affirmatives):
+# # 			print()
+# # 			print(answers[while_loop_counter])
+# # 			answered = 1
+# # 		elif (int(binary_logic[while_loop_counter]) == 0) and (input_1[0] not in affirmatives):
+# # 			print(answers[while_loop_counter])
+# # 			answered = 1
+# # 		if answered == 1:
+# # 			solved = input("Did that solve your issue (Yes/No)").split()
+# # 			if solved[0] in affirmatives:
+# # 				break
 
 
-# 		while_loop_counter+=1
+# # 		while_loop_counter+=1
 
-# 	if solved[0] not in affirmatives:
-# 		# the bot ran out of ideas
-# 		print("Sorry, I could not help you with this. email your diagnostic logs to us and we'll get back to you")
-# 	else:
-# 		print("\nGlad to help you out with that :)")
+# # 	if solved[0] not in affirmatives:
+# # 		# the bot ran out of ideas
+# # 		print("Sorry, I could not help you with this. email your diagnostic logs to us and we'll get back to you")
+# # 	else:
+# # 		print("\nGlad to help you out with that :)")
 
-# 	i_counter+=1
+# # 	i_counter+=1
 
 
 

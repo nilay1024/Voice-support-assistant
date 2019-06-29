@@ -1,0 +1,77 @@
+_id: 5d0d2e28cecf015601c9b281
+CustName: Rick
+LastPaymentDate: 21-06-2019
+Amount: 473
+Mode: PayTM
+Success/Failure: success
+Status: Active
+Time of complaint: 7 pm
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Time of complaint: 10 am
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Time of complaint: 7 pm
+
+END OF RECORD
+
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Reference number: 35954
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Reference number: 62615
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Reference number: 32565
+
+END OF RECORD
+

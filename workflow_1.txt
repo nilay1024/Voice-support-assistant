@@ -1,0 +1,10 @@
+0 d payment_mode amount date
+00 a check_match
+001 m yes
+002 m no
+0010 e Your bill has been paid and updated in the system. p
+0020 q Has it been more than 24 hours of bill payment?
+00201 m no
+00202 m yes
+002010 e Please wait for 24 hours. p
+002020 e Your call is being diverted to the nearest exchange office. p

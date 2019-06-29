@@ -1,4 +1,5 @@
 import pymongo
+from pprint import pprint
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
@@ -23,4 +24,5 @@ print("\nCollection after insertion:\n")
 # SIMILAR TO SELECT * IN POSTGRES/MYSQL
 result = mycol.find()
 for i in result:
-	print(i)
+	pprint(i)
+	print()

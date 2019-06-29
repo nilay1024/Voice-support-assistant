@@ -1,0 +1,14 @@
+0 d payment_mode amount date
+00 a check_match
+001 m yes
+002 m no
+0010 a Status
+00101 m active
+00102 m barred
+001010 e Your service status is Active as per our records. We confirm there is an actual issue and this chat log is being sent forward for resolution. pu
+001020 e Your service status is barred as per our records. Your call is being forwarded to nearest exchange office. p
+0020 q Has it been more than 24 hours of bill payment?
+00201 m no
+00202 m yes
+002010 e Please wait for 24 hours. p
+002020 e Your call is being diverted to the nearest exchange office. p
