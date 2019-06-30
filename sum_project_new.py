@@ -126,16 +126,26 @@ def execute_workflow(workflow_number):
 		if d[current_flow][-1] == 'p':
 			to_be_printed = ""
 			# print("Printing\n")
+			# for j in range(len(d[current_flow])-2):
+			# 	to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
 			for j in range(len(d[current_flow])-2):
-				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
-			print(to_be_printed)
+				# to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+				if d[current_flow][j+1] != "NEWLINE":
+					print(d[current_flow][j+1], end = " ")
+				else:
+					print()
+			# print(to_be_printed)
 
 		elif d[current_flow][-1] == 'pu':
 			to_be_printed = ""
 			# print("Printing\n")
 			for j in range(len(d[current_flow])-2):
-				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
-			print(to_be_printed)
+				# to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+				if d[current_flow][j+1] != "NEWLINE":
+					print(d[current_flow][j+1], end = " ")
+				else:
+					print()
+			# print(to_be_printed)
 			save_record(result, time)
 
 		current_flow = current_flow + next_flow
@@ -427,7 +437,8 @@ def select_category(queries, sentence1):
 
 
 # __main__  STARTING OF MAIN FUNCTION
-execute_workflow(2)
+num = int(input("Enter workflow number: "))
+execute_workflow(num)
 
 # # CHANGE SPEECH TO TEXT RECOGNITION STUFF HERE
 

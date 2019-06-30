@@ -1,0 +1,10 @@
+0 t When did you face this issue (time)? 
+00 q Is the back side of the cable loose? (loose/connected) 
+001 m loose
+002 m connected
+0010 m Connect the cable and try again. p
+00100 q Did that resolve your issue? (yes/no) 
+001001 e yes
+001002 m no
+0010020 e Raising complaint, We will get back to you soon. pu
+0020 e Raising complaint, We will get back to you soon. pu

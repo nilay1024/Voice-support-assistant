@@ -1,0 +1,16 @@
+0 t When did you face this issue (time)? 
+00 a Status
+001 m inactive
+002 m active
+003 m barred
+0010 e As per the customer request connection has been disconnected. p
+0030 e Connection has been barred due to non payment of bill , hence request you to please pay the bill to resume the services- Also need to communicate various option for the payment of bill such as - BSNL App , BSNL exchange etc. p
+0020 m Your connection is active from our end. Try replugging the wire from the modem. p
+00200 q Did that resolve the issue?
+002001 e yes
+002002 m no
+0020020 m Step 1: Right Click On Yellow Triangle NEWLINE Step 2: Click On, Open Network Sharing Setting NEWLINE Step 3: Click on, Change Adapter Settings NEWLINE Step 4: Click on , Local Area Connection NEWLINE Step 5: Than Right Click On Properties NEWLINE Step 6: Click on, Internet Protocol Version 4 (TCP/IPv4) NEWLINE Step 7: Click on , Use the following IP address NEWLINE NEWLINE IP Address: 192.168.1.2 NEWLINE Subnet Mask: 255.255.255.0 NEWLINE Gate Way: 192.168.1.1 NEWLINE Primary DNS: 4.2.2.2 NEWLINE Secondary DNS: 8.8.8.8 p
+00200200 q Is the issue resolved?
+002002001 m no
+002002002 e yes
+0020020010 e Raising complaint, we will get back to you soon. pu
