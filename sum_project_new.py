@@ -9,6 +9,10 @@ import pymongo
 from pprint import pprint
 import warnings
 import random
+import pyttsx3
+from gtts import gTTS 
+import os 
+from monkeylearn import MonkeyLearn
 
 
 # fpointer = open("queries.txt", 'r')
@@ -42,10 +46,12 @@ def execute_workflow(workflow_number):
 		if d[current_flow][0] == 'd':
 			# CHECK DATABASE
 			# NEED TO MODIFY THIS FOR BROADER CASES
-			print("Checking database")
+			# print("Checking database")
+			text_to_speech_pyttsx3("Checking database")
 			# result = check_database_new()
 			if result.count() == 0:
-				print("Record not found\n")
+				# print("Record not found\n")
+				text_to_speech_pyttsx3("We could not find that record in our database")
 			# current_flow = current_flow + '0'
 			next_flow = '0'
 
@@ -91,7 +97,8 @@ def execute_workflow(workflow_number):
 			text = ""
 			for j in range(len(d[current_flow])-1):
 				text = text + ' ' + d[current_flow][j+1]
-			time = input(text)
+			# time = input(text)
+			time = custom_input(text, input_type)
 			next_flow = '0'
 
 		elif d[current_flow][0] == 'q':
@@ -99,7 +106,8 @@ def execute_workflow(workflow_number):
 			question = ''
 			for j in range(len(d[current_flow])-1):
 				question = question + ' ' + d[current_flow][j+1]
-			ans = input(question).lower()
+			# ans = input(question).lower()
+			ans = custom_input(question, input_type).lower()
 			# print(ans)
 			counter = 1
 			try:
@@ -110,6 +118,10 @@ def execute_workflow(workflow_number):
 						# current_flow = current_flow + str(counter)
 						next_flow =  str(counter)
 						exit1 = 1
+						break
+					elif d[current_flow + str(counter)][1] == 'retry':
+						text_to_speech_pyttsx3("Sorry, didn't quiet get that, please try again")
+						next_flow = ''
 						break
 					else:
 						counter += 1
@@ -126,15 +138,16 @@ def execute_workflow(workflow_number):
 		if d[current_flow][-1] == 'p':
 			to_be_printed = ""
 			# print("Printing\n")
-			# for j in range(len(d[current_flow])-2):
-			# 	to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+			for j in range(len(d[current_flow])-2):
+				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
 			for j in range(len(d[current_flow])-2):
 				# to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
 				if d[current_flow][j+1] != "NEWLINE":
 					print(d[current_flow][j+1], end = " ")
+					# text_to_speech_pyttsx3()
 				else:
 					print()
-			# print(to_be_printed)
+			text_to_speech_pyttsx3(to_be_printed)
 
 		elif d[current_flow][-1] == 'pu':
 			to_be_printed = ""
@@ -146,6 +159,9 @@ def execute_workflow(workflow_number):
 				else:
 					print()
 			# print(to_be_printed)
+			for j in range(len(d[current_flow])-2):
+				to_be_printed = to_be_printed + ' ' + d[current_flow][j+1]
+			text_to_speech_pyttsx3(to_be_printed)
 			save_record(result, time)
 
 		current_flow = current_flow + next_flow
@@ -170,9 +186,10 @@ def check_database_new():
 
 
 def check_database():
-	payment_mode = input("Enter payment mode: ")
-	amount = input("Enter paid amount: ")
-	date = input("Enter date of payment: ")
+	text_to_speech_pyttsx3("Please enter the following details")
+	payment_mode = input("Enter payment mode: ", input_type)
+	amount = input("Enter paid amount: ", input_type)
+	date = input("Enter date of payment: ", input_type)
 	myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 	mydb = myclient["mydatabase"]
 	mycol = mydb["payment_data"]
@@ -247,6 +264,8 @@ def count(result):
 
 
 def save_record(result, time):
+	if result.count() == 0:
+		return
 	fopen = open("complaints.txt", 'a')
 	random_int = random.randint(100, 100000)
 	for i in result[0]:
@@ -272,7 +291,7 @@ def speech_to_text_short():
 
 	# Checks result.
 	if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-	    return "Recognized: {}".format(result.text), 1
+	    return result.text, 1
 	elif result.reason == speechsdk.ResultReason.NoMatch:
 	    return "No speech could be recognized: {}".format(result.no_match_details), 0
 	elif result.reason == speechsdk.ResultReason.Canceled:
@@ -282,19 +301,65 @@ def speech_to_text_short():
 	        return "Error details: {}".format(cancellation_details.error_details), 0
 
 
+def text_to_speech_pyttsx3(mytext):
+	# engine = pyttsx3.init()
+	# engine.say(text)
+	# engine.runAndWait()
+	language = 'en'
+
+	# Passing the text and language to the engine, 
+	# here we have marked slow=False. Which tells 
+	# the module that the converted audio should 
+	# have a high speed 
+	myobj = gTTS(text=mytext, lang=language, slow=False) 
+
+	# Saving the converted audio in a mp3 file named 
+	# welcome 
+	myobj.save("welcome.mp3") 
+
+	# Playing the converted file 
+	os.system("mpg321 welcome.mp3") 
+
+
+
+def custom_input(text, input_type):
+	if input_type == '1':
+		text_to_speech_pyttsx3(text)
+		value = input(text)
+		return value
+	else:
+		# print(text)
+		text_to_speech_pyttsx3(text)
+		return get_voice_input()
+
+
 def get_voice_input():
 	exit = 0
 	while exit != 1:
 		detected_voice = speech_to_text_short()
 		if detected_voice[1] == 1:
-			print(detected_voice[0])
-			x = input("Is the detected input correct? (Yes/No)")
-			if x in affirmatives:
-				return detected_voice[0]
+			print("Detected voice: ", detected_voice[0])
+			# x = input("Is the detected input correct? (Yes/No)")
+			# if x in affirmatives:
+			# 	return detected_voice[0]
+			if detected_voice[0][-1] == '.':
+				return detected_voice[0][:-1]
+			return detected_voice[0]
 		else:
 			print(detected_voice[0])
 			print("Press enter to retry voice input")
 			x = input()
+
+
+def sentiment_analysis_monkeylearn(text):
+	ml = MonkeyLearn('1a703adc6e4c0261a67e5e52de43071042af92d6')
+	data = list()
+	data.append(text)
+	model_id = 'cl_pi3C7JiL'
+	result = ml.classifiers.classify(model_id, data)
+	print(result.body)
+	return (result.body)[0]['classifications'][0]['tag_name'], (result.body)[0]['classifications'][0]['confidence']
+
 
 
 def get_overall_score(sent1, sent2):
@@ -437,130 +502,78 @@ def select_category(queries, sentence1):
 
 
 # __main__  STARTING OF MAIN FUNCTION
-num = int(input("Enter workflow number: "))
-execute_workflow(num)
+# num = int(input("Enter workflow number: "))
+# execute_workflow(num)
 
-# # CHANGE SPEECH TO TEXT RECOGNITION STUFF HERE
-
-
-# warnings.filterwarnings("ignore")
-
-# speech_key, service_region = "b3d1f03e79554727a8592485898db611", "westus"
-# speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-# # Creates a recognizer with the given settings
-# speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
+# CHANGE SPEECH TO TEXT RECOGNITION STUFF HERE
 
 
+warnings.filterwarnings("ignore")
 
-# fpointer = open("queries_bsnl.txt", 'r')
-
-# temp = fpointer.read()
-# queries = temp.split('\n')
-# print("\n\nQueries: ")
-# print(queries)
-# print()
-# fpointer.close()
-
-# choice = "no"
-# query = ""
-# max_index = 0
-# affirmatives = ['YES', 'yes', 'Yes']
-
-# # #SELECTING SINGLE CATEGORY
-# # while (choice != 'YES') or (choice != 'yes') or (choice != 'Yes'):
-# # 	sentence1 = input("What can I help you with? ")
-# # 	output = select_category(queries, sentence1)
-# # 	query = output[0]
-# # 	max_index = output[1]
-# # 	print("Do you require assistance with '", query "'?")
-# # 	choice = input()
+speech_key, service_region = "b3d1f03e79554727a8592485898db611", "westus"
+speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+# Creates a recognizer with the given settings
+speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
 
 
-# # query = select_category(queries)
 
-# #SELECTING MULTIPLE CATEOGARIES
-# input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+fpointer = open("queries_bsnl.txt", 'r')
 
-# sentence2_o = ""
+temp = fpointer.read()
+queries = temp.split('\n')
+print("\n\nQueries: ")
+print(queries)
+print()
+fpointer.close()
+
+choice = "no"
+query = ""
+max_index = 0
+affirmatives = ['YES', 'yes', 'Yes']
+
+
+#SELECTING MULTIPLE CATEOGARIES
+input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+
+sentence2_o = ""
 # if input_type == '1':
 # 	sentence2_o = input("What can I help you with?")
 # else:
 # 	sentence2_o = get_voice_input()
+sentence2_o = custom_input("Hi, How can I help you today", input_type)
 
-# sentence2 = spell_check(sentence2_o)
-# cateogaries_indices = list()
-# sentences = sentence2.replace(' and', '.').split('.')
-# scores = list()
-# for i in sentences:
-# 	output = select_category(queries, i)
-# 	if (output[1] not in cateogaries_indices) and (output[2] >= 0.125*output[3]):
-# 		cateogaries_indices.append(output[1])
-# 	print("Score: ", output[2])
+sentence2 = spell_check(sentence2_o)
+cateogaries_indices = list()
+sentences = sentence2.replace(' and', '.').split('.')
+scores = list()
+for i in sentences:
+	output = select_category(queries, i)
+	if (output[1] not in cateogaries_indices) and (output[2] >= 0.125*output[3]):
+		cateogaries_indices.append(output[1])
+	print("Score: ", output[2])
 
 # print("\n\nIdentified problems are: ")
-# for j in cateogaries_indices:
-# 	print(queries[j])
+text_to_speech_pyttsx3("We have identified the following problems")
+for j in cateogaries_indices:
+	print(queries[j])
 
-# if len(cateogaries_indices) == 0:
-# 	print("No issues found, Exiting\n")
-# 	exit()
+if len(cateogaries_indices) == 0:
+	print("No issues found, Exiting\n")
+	exit()
 
 # result = check_database()
 # if result.count() >= 1:
 # 	print("Record found\n")
 
-# for i in cateogaries_indices:
-# 	if i == 0:
-# 		bill_payment_status(result)
-# 	if i == 1:
-# 		service_not_resumed(result)
-# 	if i == 2:
-# 		disturbance_in_line(result)
+for i in cateogaries_indices:
+	execute_workflow(i+1)
 
-# # # SOLVING THE PROBLEMS IN SEQUENTIAL ORDER 
-
-# # print("\nAnswer these questions in order (binary answers preferred): \n")
-# # i_counter = 0
-# # for i in cateogaries_indices:
-# # 	print("Solving query/issue: ", queries[i], ": ")
-# # 	fpointer_q = open(str(i+1) + '_q.txt')
-# # 	questions = fpointer_q.read().split('\n')
-# # 	fpointer_q.close()
-
-# # 	fpointer_a = open(str(i+1) + '_a.txt')
-# # 	answers = fpointer_a.read().split('\n')
-# # 	fpointer_a.close()
-
-# # 	binary_logic = questions[-1].split()
-# # 	while_loop_counter = 0
-# # 	solved = "No"
-# # 	while while_loop_counter < len(questions)-1:
-# # 		print(questions[while_loop_counter])
-# # 		input_1 = input().split()
-# # 		answered = 0
-# # 		if (int(binary_logic[while_loop_counter]) == 1) and (input_1[0] in affirmatives):
-# # 			print()
-# # 			print(answers[while_loop_counter])
-# # 			answered = 1
-# # 		elif (int(binary_logic[while_loop_counter]) == 0) and (input_1[0] not in affirmatives):
-# # 			print(answers[while_loop_counter])
-# # 			answered = 1
-# # 		if answered == 1:
-# # 			solved = input("Did that solve your issue (Yes/No)").split()
-# # 			if solved[0] in affirmatives:
-# # 				break
-
-
-# # 		while_loop_counter+=1
-
-# # 	if solved[0] not in affirmatives:
-# # 		# the bot ran out of ideas
-# # 		print("Sorry, I could not help you with this. email your diagnostic logs to us and we'll get back to you")
-# # 	else:
-# # 		print("\nGlad to help you out with that :)")
-
-# # 	i_counter+=1
-
+choice = ''
+print("Do sentiment analysis? [yes/no]")
+x = input(choice)
+if x in affirmatives:
+	analysis = sentiment_analysis_monkeylearn(sentence2)
+	print(analysis[0], analysis[1]*100)
 
 
 print("\n\nExiting ...")

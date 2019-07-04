@@ -9,8 +9,10 @@
 00200 q Did that resolve the issue?
 002001 e yes
 002002 m no
+002003 m retry
 0020020 m Step 1: Right Click On Yellow Triangle NEWLINE Step 2: Click On, Open Network Sharing Setting NEWLINE Step 3: Click on, Change Adapter Settings NEWLINE Step 4: Click on , Local Area Connection NEWLINE Step 5: Than Right Click On Properties NEWLINE Step 6: Click on, Internet Protocol Version 4 (TCP/IPv4) NEWLINE Step 7: Click on , Use the following IP address NEWLINE NEWLINE IP Address: 192.168.1.2 NEWLINE Subnet Mask: 255.255.255.0 NEWLINE Gate Way: 192.168.1.1 NEWLINE Primary DNS: 4.2.2.2 NEWLINE Secondary DNS: 8.8.8.8 p
 00200200 q Is the issue resolved?
 002002001 m no
 002002002 e yes
+002002003 m retry
 0020020010 e Raising complaint, we will get back to you soon. pu
