@@ -13,6 +13,7 @@ import pyttsx3
 from gtts import gTTS 
 import os 
 from monkeylearn import MonkeyLearn
+import time
 
 
 # fpointer = open("queries.txt", 'r')
@@ -66,6 +67,9 @@ def execute_workflow(workflow_number):
 					# current_flow = current_flow + '2'
 					next_flow = '2'
 			else:
+				if (result.count() == 0):
+					speech_to_text_short("We couldn't find any such record")
+					return
 				print("Checking " + d[current_flow][1])
 				ans = result[0][d[current_flow][1]].lower()
 				print("Current " + d[current_flow][1] + "is " + ans)
@@ -126,6 +130,7 @@ def execute_workflow(workflow_number):
 					else:
 						counter += 1
 
+			# Ideally it should never come to this
 			except Exception as e:
 				raise e
 				print("\nRan out of options\n")
@@ -172,15 +177,60 @@ def execute_workflow(workflow_number):
 
 
 
+def get_date(input_type):
+	months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+	l = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+	if input_type == '1':
+		x = input("Enter date: ")
+		return x
+	temp = custom_input("When did you make this payment (date in DD-MM-YY format)", input_type)
+	dd_mm_yy = temp.split()
+	if len(dd_mm_yy)!= 3:
+		text_to_speech_pyttsx3("Please try again")
+		return get_date(input_type)
+	dd = dd_mm_yy[0]
+	yy = dd_mm_yy[2]
+	if dd_mm_yy[1].isnumeric() == True:
+		print("get_date output: ", str(dd) + '-' + str(dd_mm_yy[1]) + '-' + str(yy))
+		return str(dd) + '-' + str(dd_mm_yy[1]) + '-' + str(yy)
+	else:
+		mm = l[months.index(dd_mm_yy[1].lower())]
+		print("get_date output: ", str(dd) + '-' + str(mm) + '-' + str(yy))
+		return str(dd) + '-' + str(mm) + '-' + str(yy)
+
+
+
+def get_amount():
+	input_a = custom_input("What was the paid amount?", input_type)
+	split = input_a.split()
+	for i in split:
+		if i.isnumeric():
+			print("Detected amount ", i)
+			return i
+	text_to_speech_pyttsx3("Please try again")
+	return get_amount()
+
+
+
+def yes_no_intent(sentence):
+	# return value of 1 means yes and 0 means no
+	if "yes" in sentence:
+		return 1
+	else:
+		return 0
+
+
 
 def check_database_new():
-	payment_mode = input("Enter payment mode: ")
-	amount = input("Enter paid amount: ")
-	date = input("Enter date of payment: ")
+	# payment_mode = input("Enter payment mode: ")
+	# amount = custom_input("What was the paid amount?", input_type)
+	amount = get_amount()
+	# date = input("Enter date of payment: ")
+	date = get_date(input_type)
 	myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 	mydb = myclient["mydatabase"]
 	mycol = mydb["payment_data"]
-	result = mycol.find({'Amount': amount, 'Mode': payment_mode, 'LastPaymentDate': date})
+	result = mycol.find({'Amount': amount, 'LastPaymentDate': date})
 	return result
 
 
@@ -301,24 +351,38 @@ def speech_to_text_short():
 	        return "Error details: {}".format(cancellation_details.error_details), 0
 
 
-def text_to_speech_pyttsx3(mytext):
+def text_to_speech_pyttsx3(input_text):
 	# engine = pyttsx3.init()
 	# engine.say(text)
 	# engine.runAndWait()
-	language = 'en'
+	language = 'en-us'
 
 	# Passing the text and language to the engine, 
 	# here we have marked slow=False. Which tells 
 	# the module that the converted audio should 
 	# have a high speed 
-	myobj = gTTS(text=mytext, lang=language, slow=False) 
 
-	# Saving the converted audio in a mp3 file named 
-	# welcome 
-	myobj.save("welcome.mp3") 
+	filtered_text = input_text.split("NEWLINE")
+	ask_before_proceeding = 0
+	choice = 'no'
+	if len(filtered_text) > 1:
+		ask_before_proceeding = 1
+	for mytext in filtered_text:
+		myobj = gTTS(text=mytext, lang=language, slow=False) 
 
-	# Playing the converted file 
-	os.system("mpg321 welcome.mp3") 
+		# Saving the converted audio in a mp3 file named 
+		# welcome 
+		myobj.save("welcome.mp3") 
+
+		# Playing the converted file 
+		os.system("mpg321 welcome.mp3") 
+		if ask_before_proceeding != 0:
+			choice = custom_input("Should I proceed to the next instruction? [yes/no]", input_type).lower()
+			while choice == 'no':
+				time.sleep(4)
+				choice = custom_input("Proceed to next instruction? [yes/no]", input_type)
+
+
 
 
 
@@ -555,7 +619,8 @@ for i in sentences:
 # print("\n\nIdentified problems are: ")
 text_to_speech_pyttsx3("We have identified the following problems")
 for j in cateogaries_indices:
-	print(queries[j])
+	# print(queries[j])
+	text_to_speech_pyttsx3(queries[j])
 
 if len(cateogaries_indices) == 0:
 	print("No issues found, Exiting\n")
