@@ -118,7 +118,7 @@ def execute_workflow(workflow_number):
 				exit1 = 0
 				while exit1 == 0:
 					# print(d[current_flow + str(counter)][1], ans)
-					if d[current_flow + str(counter)][1] == ans:
+					if d[current_flow + str(counter)][1] in ans:  # for old commit change 'in' back to '=='
 						# current_flow = current_flow + str(counter)
 						next_flow =  str(counter)
 						exit1 = 1
@@ -338,6 +338,7 @@ def speech_to_text_short():
 	# speech_recognizer parameters defined in main
 	print("Say something...")
 	result = speech_recognizer.recognize_once()
+	# result = speech_recognizer.start_continuous_recognition()
 
 	# Checks result.
 	if result.reason == speechsdk.ResultReason.RecognizedSpeech:
@@ -385,6 +386,77 @@ def text_to_speech_pyttsx3(input_text):
 
 
 
+# CONTINUOUS VOICE MODEL
+
+
+# def get_data(string):
+# 	print("get_data called with input ", string)
+# 	global detected_voice
+# 	if string[-1] == '.':
+# 		detected_voice = detected_voice + ' ' + string[:-1]
+# 	else:
+# 		detected_voice = detected_voice + ' ' + string
+
+def get_data(string):
+	# print("get_data called with input ", string)
+	global prev_string
+	if prev_string == string:
+		# print("Ignoring")
+		return
+	global detected_voice
+	print("get_data called with input ", string)
+	if string[-1] == '.':
+		detected_voice = detected_voice + ' ' + string[:-1]
+	else:
+		detected_voice = detected_voice + ' ' + string
+	prev_string = string
+
+
+def speech_recognize_continuous():
+
+    """performs continuous speech recognition with input from an audio file"""
+    # <SpeechContinuousRecognitionWithFile>
+    # speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+    # audio_config = speechsdk.audio.AudioConfig(filename=weatherfilename)
+
+    # speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+
+    done = False
+    global detected_voice
+    detected_voice = ""
+
+    def stop_cb(evt):
+        """callback that stops continuous recognition upon receiving an event `evt`"""
+        print('CLOSING on {}'.format(evt))
+        speech_recognizer.stop_continuous_recognition()
+        nonlocal done
+        done = True
+
+    # Connect callbacks to the events fired by the speech recognizer
+    speech_recognizer.recognizing.connect(lambda evt: print('RECOGNIZING'))
+    # speech_recognizer.recognized.connect(lambda evt: print('RECOGNIZED: {}'.format(evt.result.text)))
+    speech_recognizer.recognized.connect(lambda evt: get_data(evt.result.text))
+    speech_recognizer.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt)))
+    speech_recognizer.session_stopped.connect(lambda evt: print('SESSION STOPPED {}'.format(evt)))
+    speech_recognizer.canceled.connect(lambda evt: print('CANCELED {}'.format(evt)))
+    # stop continuous recognition on either session stopped or canceled events
+    speech_recognizer.session_stopped.connect(stop_cb)
+    speech_recognizer.canceled.connect(stop_cb)
+
+    # Start continuous speech recognition
+    speech_recognizer.start_continuous_recognition()
+    # while not done:
+    #     time.sleep(.5)
+    # </SpeechContinuousRecognitionWithFile>
+    time.sleep(15)
+    speech_recognizer.stop_continuous_recognition()
+
+    print("\n\nRETURN TEXT: ", detected_voice)
+    return detected_voice
+
+
+
+
 
 def custom_input(text, input_type):
 	if input_type == '1':
@@ -394,13 +466,15 @@ def custom_input(text, input_type):
 	else:
 		# print(text)
 		text_to_speech_pyttsx3(text)
-		return get_voice_input()
+		# return get_voice_input()
+		return speech_recognize_continuous()
 
 
 def get_voice_input():
 	exit = 0
 	while exit != 1:
 		detected_voice = speech_to_text_short()
+		# detected_voice1 = speech_recognize_continuous()
 		if detected_voice[1] == 1:
 			print("Detected voice: ", detected_voice[0])
 			# x = input("Is the detected input correct? (Yes/No)")
@@ -413,6 +487,10 @@ def get_voice_input():
 			print(detected_voice[0])
 			print("Press enter to retry voice input")
 			x = input()
+		# if len(detected_voice1) < 2:
+		# 	print("No voice detected, press enter to try again")
+		# 	x = input()
+		# return detected_voice1
 
 
 def sentiment_analysis_monkeylearn(text):
@@ -574,7 +652,7 @@ def select_category(queries, sentence1):
 
 warnings.filterwarnings("ignore")
 
-speech_key, service_region = "b3d1f03e79554727a8592485898db611", "westus"
+speech_key, service_region = "b1e59bf960c847a9b76de4a7c5f941ac", "westus"
 speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
 # Creates a recognizer with the given settings
 speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
@@ -595,6 +673,8 @@ query = ""
 max_index = 0
 affirmatives = ['YES', 'yes', 'Yes']
 
+detected_voice = ""
+prev_string = ""
 
 #SELECTING MULTIPLE CATEOGARIES
 input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")

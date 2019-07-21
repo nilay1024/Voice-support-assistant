@@ -206,3 +206,15 @@ Reference number: 50992
 
 END OF RECORD
 
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Time of complaint: 7:00 PM
+Reference number: 99783
+
+END OF RECORD
+
