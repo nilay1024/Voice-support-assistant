@@ -14,17 +14,7 @@ from gtts import gTTS
 import os 
 from monkeylearn import MonkeyLearn
 import time
-
-
-# fpointer = open("queries.txt", 'r')
-
-# temp = fpointer.read()
-# queries = temp.split('\n')
-# print("\n\nQueries: ")
-# print(queries)
-# print()
-# fpointer.close()
-
+from websocket import create_connection
 
 
 
@@ -181,7 +171,7 @@ def get_date(input_type):
 	months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 	l = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 	if input_type == '1':
-		x = input("Enter date: ")
+		x = custom_input("Enter date: ", input_type)
 		return x
 	temp = custom_input("When did you make this payment (date in DD-MM-YY format)", input_type)
 	dd_mm_yy = temp.split()
@@ -247,63 +237,6 @@ def check_database():
 	return result
 
 
-def bill_payment_status(result):
-	# result = check_database()
-	if result.count() >= 1:
-		print("Entry found ")
-		print("Your bill has been paid and updated in the system.")
-	else:
-		print("Entry not found")
-		choice = input("Has it been more than 24 hours of bill payment? [yes/no]")
-		if choice == 'no':
-			print("Please wait for 24 hours")
-		else:
-			print("Your call is being forwarded to nearest exchange office")
-
-	print("\nExiting function ..")
-
-
-def service_not_resumed(result):
-	# result = check_database()
-	print(result[0], result[0]['Status'])
-	if result.count() >= 1:
-		print("Entry found ")
-		if result[0]['Status'] == 'Active':
-			print("Your service status is Active as per our records. We confirm there is an actual issue and this chat log is being sent forward for resolution.")
-			save_record(result, 0)
-			print("Log saved successfully\n")
-		else:
-			print("Your service status is Inactive as per our records. Your call is being forwarded to nearest exchange office")
-
-
-	else:
-		print("Entry not found")
-		choice = input("Has it been more than 24 hours of bill payment? [yes/no]")
-		if choice == 'no':
-			print("Please wait for 24 hours")
-		else:
-			print("Your call is being forwarded to nearest exchange office")
-
-	print("\nExiting function ..")
-
-
-def disturbance_in_line(result):
-	# result = check_database()
-	time = input("When did you face this issue?")
-	print("Check if the back side of the cable is connected properly")
-	isloose = input("Is the cable loose?").lower()
-	if 'yes' in isloose.split():
-		print("Connect the cable and try again")
-		choice = input("Did it resolve the issue? [yes/no]")
-		if choice == 'yes':
-			return
-		else:
-			save_record(result, time)
-			print("Raising a complaint, We will get back to you soon. Thank you")
-	else:
-		save_record(result, time)
-		print("Raising a complaint, We will get back to you soon. Thank you")
-
 
 
 def count(result):
@@ -362,21 +295,26 @@ def text_to_speech_pyttsx3(input_text):
 	# here we have marked slow=False. Which tells 
 	# the module that the converted audio should 
 	# have a high speed 
-
 	filtered_text = input_text.split("NEWLINE")
 	ask_before_proceeding = 0
 	choice = 'no'
 	if len(filtered_text) > 1:
 		ask_before_proceeding = 1
+	# else:
+	# 	ws.send(input_text)
+
 	for mytext in filtered_text:
-		myobj = gTTS(text=mytext, lang=language, slow=False) 
+		# if ask_before_proceeding > 1:
+		# 	ws.send(mytext)
+		ws.send(mytext)
+		# myobj = gTTS(text=mytext, lang=language, slow=False) 
 
 		# Saving the converted audio in a mp3 file named 
 		# welcome 
-		myobj.save("welcome.mp3") 
+		# myobj.save("welcome.mp3") 
 
 		# Playing the converted file 
-		os.system("mpg321 welcome.mp3") 
+		# os.system("mpg321 welcome.mp3") 
 		if ask_before_proceeding != 0:
 			choice = custom_input("Should I proceed to the next instruction? [yes/no]", input_type).lower()
 			while choice == 'no':
@@ -456,12 +394,48 @@ def speech_recognize_continuous():
 
 
 
+def remove_last_word(string):
+	l = string.split()
+	new_str = ""
+	for i in range(len(l)-1):
+		new_str = new_str + ' ' + str(l[i])
+	print(new_str)
+	return new_str[1:]
+
+
+
+def chatbot_response():
+	while True:
+		fin = open("transfer_data.txt", 'r')
+		x = fin.readline()
+		fin.close()
+		if x.split()[-1] == '2':
+			print(x)
+			return remove_last_word(x)
+		else:
+			print(x.split()[-1])
+			time.sleep(5)
+
+
+
+def store_data(data):
+	global prev_loaded
+	fin = open("transfer_data.txt", 'w')
+	fin.write(str(data) + ' ' + '1')
+	fin.close()
+	prev_loaded = data
 
 
 def custom_input(text, input_type):
 	if input_type == '1':
-		text_to_speech_pyttsx3(text)
-		value = input(text)
+		# text_to_speech_pyttsx3(text)
+		# store_data(text)
+		# value = input(text)
+		ws.send(text)
+		time.sleep(3)
+		value = ws.recv()
+		print("Revieved: " + str(value))
+		# value = chatbot_response()
 		return value
 	else:
 		# print(text)
@@ -470,27 +444,6 @@ def custom_input(text, input_type):
 		return speech_recognize_continuous()
 
 
-def get_voice_input():
-	exit = 0
-	while exit != 1:
-		detected_voice = speech_to_text_short()
-		# detected_voice1 = speech_recognize_continuous()
-		if detected_voice[1] == 1:
-			print("Detected voice: ", detected_voice[0])
-			# x = input("Is the detected input correct? (Yes/No)")
-			# if x in affirmatives:
-			# 	return detected_voice[0]
-			if detected_voice[0][-1] == '.':
-				return detected_voice[0][:-1]
-			return detected_voice[0]
-		else:
-			print(detected_voice[0])
-			print("Press enter to retry voice input")
-			x = input()
-		# if len(detected_voice1) < 2:
-		# 	print("No voice detected, press enter to try again")
-		# 	x = input()
-		# return detected_voice1
 
 
 def sentiment_analysis_monkeylearn(text):
@@ -659,6 +612,9 @@ speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
 
 
 
+ws = create_connection("ws://localhost:8000/")
+
+
 fpointer = open("queries_bsnl.txt", 'r')
 
 temp = fpointer.read()
@@ -675,6 +631,7 @@ affirmatives = ['YES', 'yes', 'Yes']
 
 detected_voice = ""
 prev_string = ""
+prev_loaded = ""
 
 #SELECTING MULTIPLE CATEOGARIES
 input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
@@ -721,6 +678,7 @@ if x in affirmatives:
 	print(analysis[0], analysis[1]*100)
 
 
+ws.close()
 print("\n\nExiting ...")
 
 
