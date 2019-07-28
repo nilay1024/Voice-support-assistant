@@ -107,16 +107,31 @@ def execute_workflow(workflow_number):
 			try:
 				exit1 = 0
 				while exit1 == 0:
-					# print(d[current_flow + str(counter)][1], ans)
-					if d[current_flow + str(counter)][1] in ans:  # for old commit change 'in' back to '=='
+					print(d[current_flow + str(counter)][1], ans)
+					if d[current_flow + str(counter)][1] in ans:  # for previous commit change 'in' back to '=='
 						# current_flow = current_flow + str(counter)
 						next_flow =  str(counter)
 						exit1 = 1
 						break
+
 					elif d[current_flow + str(counter)][1] == 'retry':
 						text_to_speech_pyttsx3("Sorry, didn't quiet get that, please try again")
 						next_flow = ''
 						break
+
+					elif d[current_flow + str(counter)][1] == 'no':  # special case for negative intent, safe to remove this if something goes wrong here
+						n_count = 0
+						for x in negatives:
+							if x in ans:
+								n_count += 1
+						if n_count != 0:
+							if (n_count%2)!=0:
+								next_flow = str(counter)
+								exit1 = 1
+								break
+						else:
+							counter += 1
+
 					else:
 						counter += 1
 
@@ -170,9 +185,9 @@ def execute_workflow(workflow_number):
 def get_date(input_type):
 	months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 	l = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-	if input_type == '1':
-		x = custom_input("Enter date: ", input_type)
-		return x
+	# if input_type == '1':
+	# 	x = custom_input("Enter date of payment: ", input_type)
+	# 	return x
 	temp = custom_input("When did you make this payment (date in DD-MM-YY format)", input_type)
 	dd_mm_yy = temp.split()
 	if len(dd_mm_yy)!= 3:
@@ -191,11 +206,22 @@ def get_date(input_type):
 
 
 def get_amount():
-	input_a = custom_input("What was the paid amount?", input_type)
+	input_a = custom_input("What was the last paid amount?", input_type)
 	split = input_a.split()
 	for i in split:
 		if i.isnumeric():
 			print("Detected amount ", i)
+			return i
+	text_to_speech_pyttsx3("Please try again")
+	return get_amount()
+
+
+def get_account():
+	input_a = custom_input("What is your account number?", input_type)
+	split = input_a.split()
+	for i in split:
+		if i.isnumeric():
+			print("Detected account number ", i)
 			return i
 	text_to_speech_pyttsx3("Please try again")
 	return get_amount()
@@ -214,13 +240,14 @@ def yes_no_intent(sentence):
 def check_database_new():
 	# payment_mode = input("Enter payment mode: ")
 	# amount = custom_input("What was the paid amount?", input_type)
+	account_number = get_account()
 	amount = get_amount()
 	# date = input("Enter date of payment: ")
 	date = get_date(input_type)
 	myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 	mydb = myclient["mydatabase"]
 	mycol = mydb["payment_data"]
-	result = mycol.find({'Amount': amount, 'LastPaymentDate': date})
+	result = mycol.find({"AccountNumber":account_number, 'Amount': amount, 'LastPaymentDate': date})
 	return result
 
 
@@ -262,7 +289,7 @@ def save_record(result, time):
 	fopen.write("\nEND OF RECORD\n\n")
 
 	fopen.close()
-	print("Your complaint number is ", random_int)
+	text_to_speech_pyttsx3("Your complaint number is " + str(random_int))
 
 
 
@@ -628,13 +655,15 @@ choice = "no"
 query = ""
 max_index = 0
 affirmatives = ['YES', 'yes', 'Yes']
+negatives = ["not", "didn't", "fail", "unsuccessful", "failed"]
 
 detected_voice = ""
 prev_string = ""
 prev_loaded = ""
 
 #SELECTING MULTIPLE CATEOGARIES
-input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+# input_type = input("Choose input type Text/Voice (1 for Text, 2 for Voice)")
+input_type = '1'
 
 sentence2_o = ""
 # if input_type == '1':

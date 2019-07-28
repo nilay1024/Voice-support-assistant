@@ -127,6 +127,18 @@ def execute_workflow(workflow_number):
 						text_to_speech_pyttsx3("Sorry, didn't quiet get that, please try again")
 						next_flow = ''
 						break
+
+					elif d[current_flow + str(counter)][1] == 'no':  # special case for negative intent, safe to remove this if something goes wrong here
+						n_count = 0
+						for x in negatives:
+							if x in ans:
+								n_count += 1
+						if n_count != 0:
+							if (n_count%2)!=0:
+								next_flow = str(counter)
+								exit1 = 1
+								break
+					
 					else:
 						counter += 1
 

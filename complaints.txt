@@ -218,3 +218,66 @@ Reference number: 99783
 
 END OF RECORD
 
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Time of complaint:  4:00 AM
+Reference number: 46879
+
+END OF RECORD
+
+_id: 5d0d2e65336caae89545ed8f
+CustName: Charlie
+LastPaymentDate: 16-06-2019
+Amount: 589
+Mode: Cash
+Success/Failure: success
+Status: Active
+Time of complaint: 4 pm
+Reference number: 69402
+
+END OF RECORD
+
+_id: 5d3e044c8e1b43af1b204d55
+AccountNumber: 5678
+CustName: Monty
+LastPaymentDate: 20-07-2019
+Amount: 984
+Mode: Cash
+Success/Failure: success
+Status: active
+Time of complaint: 3 pm
+Reference number: 6078
+
+END OF RECORD
+
+_id: 5d3e044c8e1b43af1b204d55
+AccountNumber: 5678
+CustName: Monty
+LastPaymentDate: 20-07-2019
+Amount: 984
+Mode: Cash
+Success/Failure: success
+Status: active
+Time of complaint: 5 pm
+Reference number: 26412
+
+END OF RECORD
+
+_id: 5d3e044c8e1b43af1b204d55
+AccountNumber: 5678
+CustName: Monty
+LastPaymentDate: 20-07-2019
+Amount: 984
+Mode: Cash
+Success/Failure: success
+Status: active
+Time of complaint: around 9 pm
+Reference number: 42537
+
+END OF RECORD
+
