@@ -44,6 +44,9 @@
   - If a line ends with pu, the sentence has to be communicated to the user and database needs to be updated (like in the case of filing a complaint, database needs to be updated and complaint number should be communicated to the user)
   - The second word of every line is a character which defines the purpose of the sentence (Whether that is a question (input required), a statement, or if there is something needed to be checked within the database). Further instructions can be found in num_coding_instructions.docx file.
 
+### To create database
+  `python mongodb_test.py`. Make sure date is in the format dd-mm-yy (hyphens included)
+
 ### Parameters needed to be modified to implement this on large scale:
   - Azure Cognitive Services key: __speech_key__ variable inside the main function
   - Monkeylearn API key: __ml__ variable inside sentiment_analysis_monkeylearn() function
@@ -58,12 +61,12 @@
     pip install websockets
     https://websockets.readthedocs.io/en/stable/intro.html
     SimpleWebSocketServer: pip install SimpleWebSocketServer
-    
+
 ### How to run:
   #### Modify these parameters (Not requied if server is localhost):
   -  `var socket` inside Webpage_client/script.js file. Specify the host server websocket URL. Ignore if server is localhost.
   - `server = SimpleWebSocketServer('', 8000, SimpleChat)`: replace ' ' by server URL. Ignore if server is localhost
-  
+
 ### Start server, client:
   - start python websocket server (server system) `python echo_server.py`. It should ideally be running continuously in the background
   - run the webpage client (Webpage_client/index.html).
