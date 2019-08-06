@@ -182,6 +182,20 @@ def execute_workflow(workflow_number):
 
 
 
+def get_dd(input_dd):
+	pad_zero = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+	padded_zero = ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+	dd = ''
+	new_dd = '0'
+	for i in input_dd:
+		if i.isdigit():
+			dd = dd + str(i)
+	if dd in pad_zero:
+		dd = padded_zero[pad_zero.index(dd)]
+	print("detected day ", dd)
+	return dd
+
+
 def get_date(input_type):
 	months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 	l = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
@@ -193,7 +207,8 @@ def get_date(input_type):
 	if len(dd_mm_yy)!= 3:
 		text_to_speech_pyttsx3("Please try again")
 		return get_date(input_type)
-	dd = dd_mm_yy[0]
+	# dd = dd_mm_yy[0]
+	dd = get_dd(dd_mm_yy[0])
 	yy = dd_mm_yy[2]
 	if dd_mm_yy[1].isnumeric() == True:
 		print("get_date output: ", str(dd) + '-' + str(dd_mm_yy[1]) + '-' + str(yy))
@@ -212,6 +227,9 @@ def get_amount():
 		if i.isnumeric():
 			print("Detected amount ", i)
 			return i
+		else if '.' in i:
+			temp = i.split('.')
+			return temp[0]
 	text_to_speech_pyttsx3("Please try again")
 	return get_amount()
 
@@ -655,7 +673,7 @@ choice = "no"
 query = ""
 max_index = 0
 affirmatives = ['YES', 'yes', 'Yes']
-negatives = ["not", "didn't", "fail", "unsuccessful", "failed"]
+negatives = ["not", "didn't", "fail", "unsuccessful", "failed", "unable"]
 
 detected_voice = ""
 prev_string = ""

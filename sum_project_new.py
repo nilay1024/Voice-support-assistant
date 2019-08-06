@@ -189,18 +189,45 @@ def execute_workflow(workflow_number):
 
 
 
+# def get_dd(input_dd):
+# 	dd = ''
+# 	new_dd = '0'
+# 	for i in input_dd:
+# 		if i.isdigit():
+# 			dd = dd + str(i)
+# 	if len(dd) == 1:
+# 		new_dd = new_dd + dd
+# 	print("detected day ", dd)
+# 	return dd
+
+
+def get_dd(input_dd):
+	pad_zero = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+	padded_zero = ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+	dd = ''
+	new_dd = '0'
+	for i in input_dd:
+		if i.isdigit():
+			dd = dd + str(i)
+	if dd in pad_zero:
+		dd = padded_zero[pad_zero.index(dd)]
+	print("detected day ", dd)
+	return dd
+
+
 def get_date(input_type):
 	months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 	l = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-	if input_type == '1':
-		x = input("Enter date: ")
-		return x
+	# if input_type == '1':
+	# 	x = input("Enter date: ")
+	# 	return x
 	temp = custom_input("When did you make this payment (date in DD-MM-YY format)", input_type)
 	dd_mm_yy = temp.split()
 	if len(dd_mm_yy)!= 3:
 		text_to_speech_pyttsx3("Please try again")
 		return get_date(input_type)
-	dd = dd_mm_yy[0]
+	dd = get_dd(dd_mm_yy[0])
+	# dd = dd_mm_yy[0]
 	yy = dd_mm_yy[2]
 	if dd_mm_yy[1].isnumeric() == True:
 		print("get_date output: ", str(dd) + '-' + str(dd_mm_yy[1]) + '-' + str(yy))
@@ -211,7 +238,6 @@ def get_date(input_type):
 		return str(dd) + '-' + str(mm) + '-' + str(yy)
 
 
-
 def get_amount():
 	input_a = custom_input("What was the paid amount?", input_type)
 	split = input_a.split()
@@ -219,6 +245,9 @@ def get_amount():
 		if i.isnumeric():
 			print("Detected amount ", i)
 			return i
+		else if '.' in i:
+			temp = i.split('.')
+			return temp[0]
 	text_to_speech_pyttsx3("Please try again")
 	return get_amount()
 
@@ -684,6 +713,8 @@ choice = "no"
 query = ""
 max_index = 0
 affirmatives = ['YES', 'yes', 'Yes']
+
+# days_dict = ['']
 
 detected_voice = ""
 prev_string = ""
