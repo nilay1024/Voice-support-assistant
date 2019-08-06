@@ -238,7 +238,7 @@ def get_date(input_type):
 		return str(dd) + '-' + str(mm) + '-' + str(yy)
 
 
-def get_amount():
+def get_amount(): 
 	input_a = custom_input("What was the paid amount?", input_type)
 	split = input_a.split()
 	for i in split:

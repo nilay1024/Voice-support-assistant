@@ -673,7 +673,7 @@ choice = "no"
 query = ""
 max_index = 0
 affirmatives = ['YES', 'yes', 'Yes']
-negatives = ["not", "didn't", "fail", "unsuccessful", "failed", "unable"]
+negatives = ["not", "didn't", "fail", "unsuccessful", "failed", "unable"] 
 
 detected_voice = ""
 prev_string = ""
