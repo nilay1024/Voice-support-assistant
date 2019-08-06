@@ -227,7 +227,7 @@ def get_amount():
 		if i.isnumeric():
 			print("Detected amount ", i)
 			return i
-		else if '.' in i:
+		elif '.' in i:
 			temp = i.split('.')
 			return temp[0]
 	text_to_speech_pyttsx3("Please try again")
