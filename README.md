@@ -5,6 +5,14 @@
 ### Services/modules used (installation and resources):
   #### nltk
     https://www.nltk.org/install.html
+    pip install nltk
+    start python and run the following code:
+```
+  import nltk
+  nltk.download('stopwords')
+  nltk.download('wordnet')
+```
+
   #### Azure cognitive speech services (Speech to text and text to speech)
     pip install azure-cognitiveservices-speech
     https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/quickstart-python
@@ -18,16 +26,19 @@
     https://pypi.org/project/gTTS/
   #### Monkeylearn API for sentiment analysis
     modify parameters inside function sentiment_analysis_monkeylearn(text)
+    pip install monkeylearn
     https://monkeylearn.com/text-analysis/
   #### Other modules need to be installed
     Pyttsx3: pip install pyttsx3
+    Audio player: https://pypi.org/project/mpyg321/  (Not suitable for windows)
+    NOTE: For windows, replace os.system("mpg321 welcome.mp3") by os.system("start welcome.mp3")
     Autocorrect:
       pip install autocorrect
       https://pypi.org/project/autocorrect/
 
 ### How to run:
   #### Command
-  `python3 sum_project_new.py`
+  `python3 sum_project_new.py`  (Before running, make sure database is ready with parameters updated in the code)
   #### Required files:
     queries.txt (current implementation is using 'queries_bsnl.txt', can be modified in the main function)
       Contains the workflow queries (check the attached 'queries_bsnl.txt' file for reference)
